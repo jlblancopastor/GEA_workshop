@@ -10,6 +10,7 @@ Slides: https://github.com/jlblancopastor/GEA_workshop/blob/main/Workshop_adapta
 
 José Luis Blanco Pastor  
 https://jlblancopastor.net
-@jlblancopastor
+
+Twitter: @jlblancopastor
 
 ![](CClogo.png)
