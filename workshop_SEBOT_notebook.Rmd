@@ -11,7 +11,6 @@ output: html_notebook
 options(scipen = 999) # Removes scientific notation
 
 #install.packages(knitr, )
-
 library(knitr)
 library(adegenet)
 library(varhandle)
@@ -27,10 +26,10 @@ library(lfmm)
 library(gplots)
 library(raster)
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("qvalue")
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# 
+# BiocManager::install("qvalue")
 library(qvalue)
 
 
