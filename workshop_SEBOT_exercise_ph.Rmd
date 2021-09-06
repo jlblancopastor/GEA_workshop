@@ -1,3 +1,5 @@
+La idea de este ejercicio es comparar resultados con los obtenidos a partir del documento workshop_SEBOT_notebook.Rmd y poder responder a las dos preguntas finales.
+
 ```{r}
 #Running time ~1s
 
