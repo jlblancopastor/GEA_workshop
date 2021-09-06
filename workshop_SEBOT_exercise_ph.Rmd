@@ -106,7 +106,7 @@ close(fileConn)
 
 
 Msat_GeneIDs <- read.csv("data/results-table_ph.csv")[,1] #results-table.csv
-write.csv2(Msat_GeneIDs, file = "data/results-geneIDs-table_ph.csv")
+write.csv2(Msat_GeneIDs, file = "data/results-geneIDs-table_ph.csv", row.names = F)
 ```
 
 #Obtain functional annotation in https://phytozome-next.jgi.doe.gov/phytomine/begin.do - Analyze
