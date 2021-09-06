@@ -1,0 +1,126 @@
+```{r}
+#Running time ~1s
+
+Msativa_ph <- as.data.frame(Msativa_env_data_imputed3_scale[,13])
+
+##lfmm
+# bioclim (principal components)
+##penalized least squares regression (ridge penalty)
+
+mod.lfmm_ph_Msat <- lfmm_ridge(Y = snps_sativa_mat_50md_mat_dt_pop_mat_imputed, 
+                        X = Msativa_ph, 
+                        K = 4) 
+
+```
+
+```{r}
+#Running time ~5s
+## performs association testing using the fitted model (p-values):
+ 
+pv_ph_Msat <- lfmm_test(Y = snps_sativa_mat_50md_mat_dt_pop_mat_imputed, 
+                        X = Msativa_ph, 
+                 lfmm = mod.lfmm_ph_Msat, 
+                 calibrate = "gif")
+```
+
+```{r}
+# chi-squared transformation
+hist(pv_ph_Msat$score[,1])
+hist((pv_ph_Msat$score[,1])^2)
+```
+
+```{r}
+hist(pv_ph_Msat$pvalue[,1], breaks = 99)
+```
+Idealmente la distribución de p-valores debe reflejar p-valore nulos (distribución uniforme) y p-valores significativos que escapan de esa distribución.
+```{r}
+#Effect of aplying the genomic inflation factor (gif)
+hist(pv_ph_Msat$calibrated.pvalue[,1], breaks = 99)
+```
+
+```{r, message=FALSE}
+#Running time ~1s
+
+# Outliers loci (p-value < 0.01)
+length(which(pv_ph_Msat$calibrated.pvalue[,1] < 0.01))
+```
+
+```{r}
+#Running time ~5s
+
+cpvalues_ph_Msat <- pv_ph_Msat$calibrated.pvalue 
+qvalues_ph_Msat <- qvalue(pv_ph_Msat$calibrated.pvalue)
+
+ ## Manhattan plot
+#First principal component
+ggplot() +
+  geom_point(aes(x=c(1:length(cpvalues_ph_Msat[,colnames(cpvalues_ph_Msat)[1]])), y=-log10(cpvalues_ph_Msat[,colnames(cpvalues_ph_Msat)[1]])), col = "gray83") +
+  geom_point(aes(x=c(1:length(cpvalues_ph_Msat[,colnames(cpvalues_ph_Msat)[1]]))[which(cpvalues_ph_Msat[,colnames(cpvalues_ph_Msat)[1]] < 0.05)], y=-log10(cpvalues_ph_Msat[which(cpvalues_ph_Msat[,colnames(cpvalues_ph_Msat)[1]] < 0.05),1])), col = "orange") +
+   geom_point(aes(x=c(1:length(cpvalues_ph_Msat[,colnames(cpvalues_ph_Msat)[1]]))[which(cpvalues_ph_Msat[,colnames(cpvalues_ph_Msat)[1]] < 0.01)], y=-log10(cpvalues_ph_Msat[which(cpvalues_ph_Msat[,colnames(cpvalues_ph_Msat)[1]] < 0.01),1])), col = "indianred3") +
+  
+  xlab("SNPs") + ylab("-log10(p.values)") +
+  ggtitle(paste0("p-values - M. sativa - ", "ph")) +
+  theme_bw()
+
+
+#First principal component
+ggplot() +
+  geom_point(aes(x=c(1:length(qvalues_ph_Msat$qvalues[,colnames(qvalues_ph_Msat$qvalues)[1]])), y=-log10(qvalues_ph_Msat$qvalues[,colnames(qvalues_ph_Msat$qvalues)[1]])), col = "gray83") +
+  
+   geom_point(aes(x=c(1:length(qvalues_ph_Msat$qvalues[,colnames(qvalues_ph_Msat$qvalues)[1]]))[which(qvalues_ph_Msat$qvalues[,colnames(qvalues_ph_Msat$qvalues)[1]] < 0.1)], y=-log10(qvalues_ph_Msat$qvalues[which(qvalues_ph_Msat$qvalues[,colnames(qvalues_ph_Msat$qvalues)[1]] < 0.1),1])), col = "blue") +
+
+  xlab("SNPs") + ylab("-log10(p.values)") +
+  ggtitle(paste0("q-values - M. sativa - ", "ph")) +
+  theme_bw()
+```
+
+
+#LFMM candidates list
+
+```{r, include=T}
+#Running time ~1s
+
+#Joint lists of candidate SNPs
+list <- rownames(which(qvalues_ph_Msat$qvalues < 0.1, arr.ind = T))
+
+```
+
+
+#Candidates in MedicMine format
+```{r}
+candMsat_MedicMine <- gsub("S", "chr", list, fixed =T)
+candMsat_MedicMine <- gsub("\\_[A-Z]", "", candMsat_MedicMine)
+candMsat_MedicMine <- gsub("_", ":", candMsat_MedicMine)
+
+fileConn<-file("data/candMsat_MedicMine_ph.txt")
+writeLines(candMsat_MedicMine, fileConn)
+close(fileConn)
+```
+
+#Obtain genes in http://medicmine.jcvi.org/medicmine/genomicRegionSearch.do or https://phytozome-next.jgi.doe.gov/phytomine/genomicRegionSearch.do
+
+
+```{r}
+
+
+Msat_GeneIDs <- read.csv("data/results-table_ph.csv")[,1] #results-table.csv
+write.csv2(Msat_GeneIDs, file = "data/results-geneIDs-table_ph.csv")
+```
+
+#Obtain functional annotation in https://phytozome-next.jgi.doe.gov/phytomine/begin.do - Analyze
+
+
+
+#Gene ontology analysis in http://bioinfo.cau.edu.cn/agriGO/analysis.php
+
+
+
+Questions:
+
+1. Por qué encontramos más genes candidatos (con un FDR = 0.1) asociados al ph que asociados al clima?
+
+2. Significa ésto que el pH es más importante (mayor número de genes involucrados) que el clima para la adaptación de esta especie?
+
+
+
+
