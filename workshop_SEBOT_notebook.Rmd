@@ -172,6 +172,8 @@ Msativa_coordinates <- Msativa_coordinates[Msativa_coordinates$accessionN_Sample
 Yellow: M. sativa ssp. falcata (cold adapted)
 Purple: M. sativa ssp. caerulea (drought adapted)
 
+(Careful as "fc" function assigns order of clusters arbitrarily and color indexes may change)
+
 # RDA
 ## Raster data
 ```{r}
@@ -324,6 +326,10 @@ text(rda_bioclim_Msat, display = "bp", col="#0868ac", cex=1)                    
 
 
 ```
+BIO5 = Max Temperature of Warmest Month
+BIO8 = Mean Temperature of Wettest Quarter
+
+
 Remember that axis represent a linear combination of genotipic variables constrained by environmental data.
 
 Fig1 - Here we observe the populations as defined by their genetic variation associated with  environmental data.
@@ -431,9 +437,10 @@ plot(pc_sativa_bioclim$sdev[1:10]^2, xlab = 'PC', ylab = "Variance explained", m
 ```
 
 
-
-###################
-
+LFMM formula 
+$$
+ Y = X B^T + U V^T + E
+$$
 
 ```{r}
 #Running time ~1s
@@ -481,8 +488,6 @@ hist((pv_bioclim_pca_Msat$score[,1])^2)
 hist(pv_bioclim_pca_Msat$pvalue[,1], breaks = 99)
 abline(100,0, col= "red")
 ```
-Sin calibración con gif tenemos unos 100 falsos positivos de unos 1700 test no-nulos
-
 Idealmente la distribución de p-valores debe reflejar p-valores nulos (distribución uniforme) y un enriquecimiento en p-valores no nulos (con valores próximos a 0).
 
 To calibrate p-values we use a **genomic inflation factor**, $\lambda$, defined by Devlin & Roeder (1999) as $$\lambda = median(z^2/0.456)$$, where $z^2$ is a vector that contains the test statistic **($z^2-scores$)** for all loci, and 0.456 corresponds to **the median of the chisquare distribution ($Z^2$)**. P-values are correctly calibrated when the inflation factor is close to one (p-values match a chi-squared distribution)
@@ -493,8 +498,6 @@ To calibrate p-values that deviate from a chi-squared distribution we modify the
 hist(pv_bioclim_pca_Msat$calibrated.pvalue[,1], breaks = 99)
 abline(170,0, col= "red")
 ```
-Con calibración con GIF detectamos unos 170 posibles falsos positivos de unos 220 test no nulosque van a ser correctamente descartados.
-
 
 ##Manhattan plot
 ```{r}
@@ -540,7 +543,7 @@ ggplot() +
   
    geom_point(aes(x=c(1:length(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[1]]))[which(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[1]] < 0.1)], y=-log10(qvalues_bioclim_pca_Msat$qvalues[which(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[1]] < 0.1),1])), col = "blue") +
 
-  xlab("SNPs") + ylab("-log10(p.values)") +
+  xlab("SNPs") + ylab("-log10(q.values)") +
   ggtitle(paste0("q-value < 0.1 - ", colnames(cpvalues_bioclim_pca_Msat)[1])) +
   theme_bw()
 
@@ -550,7 +553,7 @@ ggplot() +
   
    geom_point(aes(x=c(1:length(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[2]]))[which(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[2]] < 0.1)], y=-log10(qvalues_bioclim_pca_Msat$qvalues[which(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[2]] < 0.1),1])), col = "blue") +
 
-  xlab("SNPs") + ylab("-log10(p.values)") +
+  xlab("SNPs") + ylab("-log10(q.values)") +
   ggtitle(paste0("q-value < 0.1 - ", colnames(cpvalues_bioclim_pca_Msat)[2])) +
   theme_bw()
 
@@ -560,7 +563,7 @@ ggplot() +
   
    geom_point(aes(x=c(1:length(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[3]]))[which(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[3]] < 0.1)], y=-log10(qvalues_bioclim_pca_Msat$qvalues[which(qvalues_bioclim_pca_Msat$qvalues[,colnames(qvalues_bioclim_pca_Msat$qvalues)[3]] < 0.1),1])), col = "blue") +
 
-  xlab("SNPs") + ylab("-log10(p.values)") +
+  xlab("SNPs") + ylab("-log10(q.values)") +
   ggtitle(paste0("q-value < 0.1 - ", colnames(cpvalues_bioclim_pca_Msat)[3])) +
   theme_bw()
 ```
